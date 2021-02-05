@@ -4,6 +4,7 @@ import requests
 import json
 from extract import json_extract
 import dateutil.parser
+import time
 
 #To-do: Error handling for incorrect symbol
 #Handle multiple incoming messages
@@ -31,23 +32,25 @@ def write_json(data, filename):
     with open(filename_output,'w') as json_output: 
         json.dump(data,json_output)
 
-
-def main():
-    return
-
-
-def get_cmc_data(): # ! This only returns the first crypto symbol from the file
+def fetchCoinMarketData(): # ! This only returns the first crypto symbol from the file
     jsonFile = open("BitcoinQuote.txt",'r') # ! change hard-coded values
     values = json.load(jsonFile)
     jsonFile.close()
 
     num_updates = len(values["result"])
     last_update = num_updates - 1
+
     global chatId
     chatId=values["result"][last_update]["message"]["chat"]["id"]
-    
-    quote = json_extract(values, 'text')
-    return fetchCryptoPrice(quote[-1])
+    global text
+    text = values["result"][last_update]["message"]["text"]
+    print ("text = ")
+    print(text)
+
+    #global quote
+    #quote = json_extract(values, 'text')
+    return text, chatId
+    #return fetchCryptoPrice(quote[-1])
 
 def telegram_GetUpdates():
     updates = requests.get('https://api.telegram.org/bot{0}/{1}'.format(telegramToken, 'getUpdates'))
@@ -62,8 +65,29 @@ def telegram_returnprice(text):
     parameterInput = "?chat_id={}&text={}".format(chatId,text)
     sendMessage = requests.get('https://api.telegram.org/bot{}/{}{}'.format(telegramToken, 'sendMessage',parameterInput)) # OLD TEXT - data ={'chat_id':'@MW_CryptoPriceBot','text':'{text}'} 
 
-if __name__ == "__main__":
+
+
+def main():
+    last_textchat = (None, None)
+    while True: # ! If the same symbol is entered twice in a row it wont execute for the second
+        telegram_GetUpdates()
+        text, chat = fetchCoinMarketData()
+        print("Before if statement, ")
+        print("Text = {}".format(text))
+        print("Chat = {}".format(chat))
+        if (text, chat) != last_textchat:
+            fetchCryptoPrice(text)
+            #send_message(text, chat)
+            last_textchat = (text, chat)
+        time.sleep(1)   #only repeats every 1 second
+
+
+if __name__ == '__main__':
     main()
-    telegram_GetUpdates()
-    get_cmc_data()
+    
+#if __name__ == "__main__":
+#    main()
+#    telegram_GetUpdates()
+#    fetchCoinMarketData()
+
      
