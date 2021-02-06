@@ -6,13 +6,18 @@ from extract import json_extract
 import dateutil.parser
 import time
 
+#Bi-directional API calls, with and without additional parameters
+#TIme package "listening"
+#echo reply exception
+
+
 #To-do: Error handling for incorrect symbol
 #Handle multiple incoming messages
 
 
 
-def fetchCryptoPrice(symbol):
-    # ! The crypto symbol is case sensitive, convert to uppercase first
+def fetchCryptoPrice(symbol,chat):
+    symbol = symbol.upper()
     url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest'
     headers = {'X-CMC_PRO_API_KEY': cmc_token}  #Key is in the cmc_token variable
     params = {'symbol': symbol, 'convert': 'USD'}
@@ -23,10 +28,10 @@ def fetchCryptoPrice(symbol):
     last_updated = dateutil.parser.parse(response_json["data"][symbol]["quote"]["USD"]["last_updated"])
     price = round(r.json()["data"][symbol]["quote"]["USD"]["price"],2) #Extract price from JSON response and round to 2 decimal points
     chatbotResponse = f"The price for {symbol}, as of {last_updated} is ${price}"
-    return(telegram_returnprice(chatbotResponse))
+    return(telegramReturnPrice(chatbotResponse,chat))
 
 
-def write_json(data, filename):
+def writeJson(data, filename):
     filename_output = str(filename) + ".txt"
     open(filename_output, 'w').close() # ? This clears the content of the text file, this needs to be removed once I am able to handle multiple messages
     with open(filename_output,'w') as json_output: 
@@ -40,10 +45,10 @@ def fetchCoinMarketData(): # ! This only returns the first crypto symbol from th
     num_updates = len(values["result"])
     last_update = num_updates - 1
 
-    global chatId
-    chatId=values["result"][last_update]["message"]["chat"]["id"]
-    global text
-    text = values["result"][last_update]["message"]["text"]
+    #global chatId
+    #chatId=values["result"][last_update]["message"]["chat"]["id"]
+    #global text
+    #text = values["result"][last_update]["message"]["text"]
     print ("text = ")
     print(text)
 
@@ -52,33 +57,54 @@ def fetchCoinMarketData(): # ! This only returns the first crypto symbol from th
     return text, chatId
     #return fetchCryptoPrice(quote[-1])
 
-def telegram_GetUpdates():
-    updates = requests.get('https://api.telegram.org/bot{0}/{1}'.format(telegramToken, 'getUpdates'))
+def telegramGetUpdates(offset=None):
+    URL = 'https://api.telegram.org/bot{0}/{1}'.format(telegramToken, 'getUpdates')
+    if offset:
+        URL += "?offset={}".format(offset)
+    updates = requests.get(URL) #added an offsets parameter, which contains the value of the latest update_id so that messages already processed will not be sent again
 
     # ! Need to refine this to rather search by properly going through the nested sections -->  (updateText = content["result"]["message"]["text"])
-    # ! For now this assumes that only one ticker symbol will come through at a time
-
-    return write_json(updates.json(),"BitcoinQuote") # ! This writes the whole JSON to file - check if this is what is required 
+    writeJson(updates.json(),"BitcoinQuote") # ! This writes the whole JSON to file - check if this is what is required 
+    return updates.json()
+ 
     
-def telegram_returnprice(text):
+def telegramReturnPrice(text,chat):
 
-    parameterInput = "?chat_id={}&text={}".format(chatId,text)
+    parameterInput = "?chat_id={}&text={}".format(chat,text)
     sendMessage = requests.get('https://api.telegram.org/bot{}/{}{}'.format(telegramToken, 'sendMessage',parameterInput)) # OLD TEXT - data ={'chat_id':'@MW_CryptoPriceBot','text':'{text}'} 
 
+def getLastUpdateId(updates):
+    update_ids = []
+    for update in updates["result"]:
+        update_ids.append(int(update["update_id"]))
+    return max(update_ids)
 
+def echoAll(updates):
+    for update in updates["result"]:
+        try:
+            text = update["message"]["text"]
+            chat = update["message"]["chat"]["id"]
+            fetchCryptoPrice(text,chat)
+        except Exception as e:
+            print("error in echo")
+            print(e)    
 
 def main():
-    last_textchat = (None, None)
-    while True: # ! If the same symbol is entered twice in a row it wont execute for the second
-        telegram_GetUpdates()
-        text, chat = fetchCoinMarketData()
-        print("Before if statement, ")
-        print("Text = {}".format(text))
-        print("Chat = {}".format(chat))
-        if (text, chat) != last_textchat:
-            fetchCryptoPrice(text)
+    #last_textchat = (None, None)
+    lastUpdateId = None
+    while True: 
+        updates = telegramGetUpdates(lastUpdateId)
+        #text, chat = fetchCoinMarketData()
+        #print("Before if statement, ")
+        #print("Text = {}".format(text))
+        #print("Chat = {}".format(chat))
+        #if (text, chat) != last_textchat:
+        if len(updates["result"]) > 0:
+            lastUpdateId = getLastUpdateId(updates) + 1
+            echoAll(updates)
+            #fetchCryptoPrice(text)
             #send_message(text, chat)
-            last_textchat = (text, chat)
+            #last_textchat = (text, chat)
         time.sleep(1)   #only repeats every 1 second
 
 
@@ -87,7 +113,7 @@ if __name__ == '__main__':
     
 #if __name__ == "__main__":
 #    main()
-#    telegram_GetUpdates()
+#    telegramGetUpdates()
 #    fetchCoinMarketData()
 
      
