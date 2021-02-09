@@ -143,5 +143,6 @@ dmypy.json
 .prof
 
 env.py
+APIURLs.txt
 
 # End of https://www.toptal.com/developers/gitignore/api/python

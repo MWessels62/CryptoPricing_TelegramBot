@@ -1,14 +1,31 @@
+
+
+
+##########################################################################################################
+
 import json
 import time
 import urllib  # ( urllib.parse.quote_plus(text)) allows us to handle special characters in the API URL
 
 import dateutil.parser
-import requests
 
 from env import cmc_token  # Imports cmc_tokenvariable from the env.py file
 from env import telegramToken
 from extract import json_extract
+from botocore.vendored import requests
 
+
+
+def lambda_handler(event, context):
+    message = json.loads(event['body'])
+    chat_id = message['message']['chat']['id']
+    reply = message['message']['text']
+    fetchCryptoPrice(reply, chat_id)
+    return {
+        'statusCode': 200
+    }
+
+    
 #Bi-directional API calls, with and without additional parameters
 #TIme package "listening"
 #echo reply exception
@@ -87,18 +104,18 @@ def echoAll(updates):
             telegramReturnPrice(errorText,chat)
             print(e)    
 
-def main():
-    #last_textchat = (None, None)
-    lastUpdateId = None
-    while True: 
-        updates = telegramGetUpdates(lastUpdateId)
+#def main():
+#    #last_textchat = (None, None)
+#    lastUpdateId = None
+#    while True: 
+#        updates = telegramGetUpdates(lastUpdateId)
 
-        if len(updates["result"]) > 0:
-            lastUpdateId = getLastUpdateId(updates) + 1
-            echoAll(updates)
+#        if len(updates["result"]) > 0:
+#            lastUpdateId = getLastUpdateId(updates) + 1
+#            echoAll(updates)
 
-        time.sleep(0.5)   #only repeats every 1 second
+#        time.sleep(0.5)   #only repeats every 1 second
 
 
-if __name__ == '__main__':
-    main()     
+#if __name__ == '__main__':
+#    main()     
