@@ -21,7 +21,7 @@ The following components were used:
 
 <p>NB: Work is still in progress..</p>
 
-<h2>Current Features<:/h2>
+<h2>Current Features</h2>
 </ul>
 	<li>Integrating two different APIs</li>
 	<li>"Listening" for new messages with long polling to reduce server load</li>
@@ -29,7 +29,7 @@ The following components were used:
 
 </ul>
 
-<h2>Planned features<:/h2>
+<h2>Planned features</h2>
 </ul>
 	<li>AWS integration / Webserver setup</li>
 	<li>Webhooks</li>
