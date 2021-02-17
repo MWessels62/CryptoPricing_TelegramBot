@@ -1,4 +1,4 @@
-<b>Telegram Cryptocurrency price bot</b>
+<H1>Telegram crypt-currency price bot</h1>
 <br>
 Creating a telegram bot that provides a user with the price, in USD, of a given crypto currency.
 <br>
@@ -18,3 +18,21 @@ The following components were used:
 	</li>
 	<li>Code hosted on Digital Ocean</li>
 </ol>  
+
+<p>NB: Work is still in progress..</p>
+
+<h2>Current Features<:/h2>
+</ul>
+	<li>Integrating two different APIs</li>
+	<li>"Listening" for new messages with long polling to reduce server load</li>
+	<li>Code hosted on Digital Ocean</li>
+
+</ul>
+
+<h2>Planned features<:/h2>
+</ul>
+	<li>AWS integration / Webserver setup</li>
+	<li>Webhooks</li>
+	<li>Improve bot user-friendliness and functionality</li>
+
+</ul>
