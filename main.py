@@ -26,8 +26,7 @@ def fetchCryptoPrice(symbol,chat):
 
     r = requests.get(url, headers=headers, params=params)
     response_json = r.json()
-    print("Response JSON")
-    print(r)
+    
     #if r == "<Response [400]>":
         #return telegramReturnPrice("There was an error in retrieving the crytocurrency price. Please make sure that you are using the correct symbol and try again",chat)
     #else:
