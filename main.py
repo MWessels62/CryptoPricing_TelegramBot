@@ -103,14 +103,6 @@ def echoAll(updates):
                 telegramReturnPrice(errorText,chat)
                 print(e)
 
-    #except Exception as e:
-        #if text1.startswith("/"):
-            #return
-        #else:
-            #errorText = "There was an error in retrieving the crytocurrency price. Please make sure that you are using the correct symbol and try again"
-            #telegramReturnPrice(errorText,chat)
-            #print(e)
-
 
 #def echoAll(updates):
 #    for update in updates["result"]:
@@ -125,11 +117,10 @@ def echoAll(updates):
 
 def main():
     #last_textchat = (None, None)
+    print("Telegram crypto price bot currently running!!!!!!!!!!!")
     lastUpdateId = None
     while True: 
         updates = telegramGetUpdates(lastUpdateId)
-        print("Updates = ")
-        print(updates)
         if len(updates["result"]) > 0:
             lastUpdateId = getLastUpdateId(updates) + 1
             echoAll(updates)
