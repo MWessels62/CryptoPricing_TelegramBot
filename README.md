@@ -1,4 +1,4 @@
-<H1>Telegram crypt-currency price bot</h1>
+<H1>Telegram crypto-currency price bot</h1>
 <br>
 Creating a telegram bot that provides a user with the price, in USD, of a given crypto currency.
 <br>

@@ -144,5 +144,6 @@ dmypy.json
 
 env.py
 APIURLs.txt
+bfg-1.13.2.jar
 
 # End of https://www.toptal.com/developers/gitignore/api/python
