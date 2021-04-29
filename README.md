@@ -36,3 +36,8 @@ The following components were used:
 	<li>Improve bot user-friendliness and functionality</li>
 
 </ul>
+
+
+Sample of chatbot response
+![image](https://user-images.githubusercontent.com/10943995/116616399-f7798400-a93c-11eb-8d25-e1445ee83514.png)
+
