@@ -9,14 +9,10 @@ from env import cmc_token  # Imports cmc_tokenvariable from the env.py file
 from env import telegramToken
 from extract import json_extract
 
+#FEATURES
 #Bi-directional API calls, with and without additional parameters
 #TIme package "listening"
 #echo reply exception
-
-
-#To-do: Error handling for incorrect symbol
-
-
 
 def fetchCryptoPrice(symbol,chat):
     symbol = symbol.upper()
@@ -27,35 +23,17 @@ def fetchCryptoPrice(symbol,chat):
     r = requests.get(url, headers=headers, params=params)
     response_json = r.json()
     
-    #if r == "<Response [400]>":
-        #return telegramReturnPrice("There was an error in retrieving the crytocurrency price. Please make sure that you are using the correct symbol and try again",chat)
-    #else:
     last_updated = dateutil.parser.parse(response_json["data"][symbol]["quote"]["USD"]["last_updated"])
     price = round(r.json()["data"][symbol]["quote"]["USD"]["price"],2) #Extract price from JSON response and round to 2 decimal points
     chatbotResponse = f"The price for {symbol}, as of {last_updated} is ${price}"
     return(telegramReturnPrice(chatbotResponse,chat))
 
-
-def writeJson(data, filename):
-    filename_output = str(filename) + ".txt"
-    open(filename_output, 'w').close() # ? This clears the content of the text file, this needs to be removed once I am able to handle multiple messages
-    with open(filename_output,'w') as json_output: 
-        json.dump(data,json_output)
-
-#def fetchCoinMarketData(): # ! This only returns the first crypto symbol from the file
-#    jsonFile = open("BitcoinQuote.txt",'r') # ! change hard-coded values
-#    values = json.load(jsonFile)
-#    jsonFile.close()
-
-#    num_updates = len(values["result"])
-#    last_update = num_updates - 1
-
-    #print ("text = ")
-    #print(text)
-#
-#     return text, chatId
-
-
+#FUNCTIONALITY TO WRITE DATA TO A FILE, NOT CURRENTLY BEING USED
+#def writeJson(data, filename):
+#    filename_output = str(filename) + ".txt"
+#    open(filename_output, 'w').close() # ? This clears the content of the text file, this needs to be removed once I am able to handle multiple messages
+#    with open(filename_output,'w') as json_output: 
+#        json.dump(data,json_output)
 
 def telegramGetUpdates(offset=None):
     URL = 'https://api.telegram.org/bot{0}/{1}'.format(telegramToken, 'getUpdates')
@@ -63,18 +41,14 @@ def telegramGetUpdates(offset=None):
     if offset:
         URL += "&offset={}".format(offset)
     updates = requests.get(URL) #added an offsets parameter, which contains the value of the latest update_id so that messages already processed will not be sent again
-
-    # ! Need to refine this to rather search by properly going through the nested sections -->  (updateText = content["result"]["message"]["text"])
-    writeJson(updates.json(),"BitcoinQuote") # ! This writes the whole JSON to file - check if this is what is required 
     return updates.json()
  
 
-
-    
+ 
 def telegramReturnPrice(text,chat):
     text = urllib.parse.quote_plus(text) #allows us to handle special characters in the API URL
     parameterInput = "?chat_id={}&text={}".format(chat,text)
-    sendMessage = requests.get('https://api.telegram.org/bot{}/{}{}'.format(telegramToken, 'sendMessage',parameterInput)) # OLD TEXT - data ={'chat_id':'@MW_CryptoPriceBot','text':'{text}'} 
+    sendMessage = requests.get('https://api.telegram.org/bot{}/{}{}'.format(telegramToken, 'sendMessage',parameterInput)) # 
 
 
 def getLastUpdateId(updates):
@@ -94,7 +68,7 @@ def echoAll(updates):
         except Exception as e:
             if text1 == "/start":
                 telegramReturnPrice("Welcome to the Crypto Price Bot. Type in a crypto symbol, e.g. BTC, or ETH to get the current price.", chat)
-                telegramReturnPrice("Here are some of the top crypto symbols that you can use: BTC - Bitcoin |||| ETH - Etherium |||| USDT - Tether |||| DOT - Polkadot |||| ADA - ", chat)
+                telegramReturnPrice("Here are some of the top crypto symbols that you can use: BTC - Bitcoin |||| ETH - Etherium |||| USDT - Tether |||| DOT - Polkadot |||| ADA - Cardano", chat)
             elif text1.startswith("/"):
                 return
             else:
@@ -102,20 +76,7 @@ def echoAll(updates):
                 telegramReturnPrice(errorText,chat)
                 print(e)
 
-
-#def echoAll(updates):
-#    for update in updates["result"]:
-#        try:
-#            text = update["message"]["text"]
-#            chat = update["message"]["chat"]["id"]
-#            fetchCryptoPrice(text,chat)
-#        except Exception as e:
-#            errorText = "There was an error in retrieving the cryptocurrency price. Please make sure you are using the correct symbol and try again"
-#            telegramReturnPrice(errorText,chat)
-#            print(e)    
-
 def main():
-    #last_textchat = (None, None)
     print("Telegram crypto price bot currently running!!!!!!!!!!!")
     lastUpdateId = None
     while True: 
