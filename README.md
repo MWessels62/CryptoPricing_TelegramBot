@@ -36,9 +36,9 @@ The following components were used:
 	<li>Improve bot user-friendliness and functionality</li>
 
 </ul>
-
-
-Sample of chatbot response
+<br>
+<br>
+<h2>Sample of chatbot response</h2>
 
 
 
